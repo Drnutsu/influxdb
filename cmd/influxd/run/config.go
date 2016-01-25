@@ -102,6 +102,7 @@ func NewDemoConfig() (*Config, error) {
 		return nil, fmt.Errorf("failed to determine current user for storage")
 	}
 
+	c.Dir = filepath.Join(homeDir, ".influxdb")
 	c.Meta.Dir = filepath.Join(homeDir, ".influxdb/meta")
 	c.Data.Dir = filepath.Join(homeDir, ".influxdb/data")
 	c.HintedHandoff.Dir = filepath.Join(homeDir, ".influxdb/hh")
