@@ -129,7 +129,7 @@ func NewServer(c *Config, buildInfo *BuildInfo) (*Server, error) {
 	}
 
 	// Create the root directory if it doesn't already exist.
-	if err := os.MkdirAll(dir, 0777); err != nil {
+	if err := os.MkdirAll(c.Meta.Dir, 0777); err != nil {
 		return nil, fmt.Errorf("mkdir all: %s", err)
 	}
 
