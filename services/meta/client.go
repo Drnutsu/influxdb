@@ -874,7 +874,6 @@ func (c *Client) JoinMetaServer(httpAddr, tcpAddr string) error {
 		// Something failed, try the next node
 		currentServer++
 	}
-	return nil
 }
 
 func (c *Client) CreateMetaNode(httpAddr, tcpAddr string) (*NodeInfo, error) {
