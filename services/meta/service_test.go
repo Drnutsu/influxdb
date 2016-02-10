@@ -952,6 +952,7 @@ func TestMetaService_FailureAndRestartCluster(t *testing.T) {
 	for i, _ := range cfgs {
 		c := newConfig()
 		c.HTTPBindAddress = joinPeers[i]
+		c.BindAddress = "127.0.0.1:0"
 		c.JoinPeers = joinPeers
 		cfgs[i] = c
 
