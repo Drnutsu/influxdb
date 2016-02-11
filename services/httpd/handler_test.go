@@ -322,25 +322,42 @@ func TestHandler_Ping(t *testing.T) {
 func TestHandler_Version(t *testing.T) {
 	h := NewHandler(false)
 	w := httptest.NewRecorder()
-	var v string
-	
-	h.ServeHTTP(w, MustNewRequest("GET", "/ping", nil))
-	v = w.HeaderMap["X-Influxdb-Version"][0]
-	if v != "0.0.0" {
-		t.Fatalf("unexpected version: %s", v)
-	}
-	
-	h.ServeHTTP(w, MustNewJSONRequest("GET", "/query?db=foo&q=SELECT+*+FROM+bar", nil))
-	v = w.HeaderMap["X-Influxdb-Version"][0]
-	if v != "0.0.0" {
-		t.Fatalf("unexpected version: %s", v)
+	tests := []struct {
+		method string
+		endpoint string
+		body *bytes.Reader
+	}{
+		{
+			method: "GET",
+			endpoint: "/ping",
+			body: nil,
+		},
+		{
+			method: "GET",
+			endpoint: "/query?db=foo&q=SELECT+*+FROM+bar",
+			body: nil,
+		},
+		{
+			method: "POST",
+			endpoint: "/write",
+			body: bytes.NewReader(make([]byte, 10)),
+		},
 	}
 
-	b := bytes.NewReader(make([]byte, 10))
-	h.ServeHTTP(w, MustNewRequest("POST", "/write", b))
-	v = w.HeaderMap["X-Influxdb-Version"][0]
-	if v != "0.0.0" {
-		t.Fatalf("unexpected version: %s", v)
+	for _, test := range tests {
+		if test.body != nil {
+			h.ServeHTTP(w, MustNewRequest(test.method, test.endpoint, test.body))
+		} else {
+			h.ServeHTTP(w, MustNewRequest(test.method, test.endpoint, nil))
+		}
+		v, ok := w.HeaderMap["X-Influxdb-Version"]
+		if ok {
+			if v[0] != "0.0.0" {
+				t.Fatalf("unexpected version: %s", v)
+			}
+		} else {
+			t.Fatalf("Header entry 'X-Influxdb-Version' not present")
+		}
 	}
 }
 
