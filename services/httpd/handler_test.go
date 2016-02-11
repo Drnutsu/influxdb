@@ -322,18 +322,25 @@ func TestHandler_Ping(t *testing.T) {
 func TestHandler_Version(t *testing.T) {
 	h := NewHandler(false)
 	w := httptest.NewRecorder()
+	var v string
+	
 	h.ServeHTTP(w, MustNewRequest("GET", "/ping", nil))
-	if w.HeaderMap["X-Influxdb-Version"][0] != "0.0.0" {
-		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
+	v = w.HeaderMap["X-Influxdb-Version"][0]
+	if v != "0.0.0" {
+		t.Fatalf("unexpected version: %s", v)
 	}
+	
 	h.ServeHTTP(w, MustNewJSONRequest("GET", "/query?db=foo&q=SELECT+*+FROM+bar", nil))
-	if w.HeaderMap["X-Influxdb-Version"][0] != "0.0.0" {
-		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
+	v = w.HeaderMap["X-Influxdb-Version"][0]
+	if v != "0.0.0" {
+		t.Fatalf("unexpected version: %s", v)
 	}
+
 	b := bytes.NewReader(make([]byte, 10))
 	h.ServeHTTP(w, MustNewRequest("POST", "/write", b))
-	if w.HeaderMap["X-Influxdb-Version"][0] != "0.0.0" {
-		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
+	v = w.HeaderMap["X-Influxdb-Version"][0]
+	if v != "0.0.0" {
+		t.Fatalf("unexpected version: %s", v)
 	}
 }
 
