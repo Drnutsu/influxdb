@@ -17,6 +17,10 @@ type FloatPoint struct {
 	Nil   bool
 	Value float64
 	Aux   []interface{}
+
+	// Total number of points that were combined into this point from an aggregate.
+	// If this is zero, the point is not the result of an aggregate function.
+	Aggregated int
 }
 
 func (v *FloatPoint) name() string { return v.Name }
@@ -121,6 +125,10 @@ type IntegerPoint struct {
 	Nil   bool
 	Value int64
 	Aux   []interface{}
+
+	// Total number of points that were combined into this point from an aggregate.
+	// If this is zero, the point is not the result of an aggregate function.
+	Aggregated int
 }
 
 func (v *IntegerPoint) name() string { return v.Name }
@@ -225,6 +233,10 @@ type StringPoint struct {
 	Nil   bool
 	Value string
 	Aux   []interface{}
+
+	// Total number of points that were combined into this point from an aggregate.
+	// If this is zero, the point is not the result of an aggregate function.
+	Aggregated int
 }
 
 func (v *StringPoint) name() string { return v.Name }
@@ -329,6 +341,10 @@ type BooleanPoint struct {
 	Nil   bool
 	Value bool
 	Aux   []interface{}
+
+	// Total number of points that were combined into this point from an aggregate.
+	// If this is zero, the point is not the result of an aggregate function.
+	Aggregated int
 }
 
 func (v *BooleanPoint) name() string { return v.Name }

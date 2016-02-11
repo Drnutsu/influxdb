@@ -49,6 +49,8 @@ func NewCallIterator(input Iterator, opt IteratorOptions) Iterator {
 		return newFirstIterator(input, opt)
 	case "last":
 		return newLastIterator(input, opt)
+	case "mean":
+		return newMeanIterator(input, opt)
 	default:
 		panic(fmt.Sprintf("unsupported function call: %s", name))
 	}
@@ -293,26 +295,21 @@ func stringDistinctReduceSlice(a []StringPoint, opt *reduceOptions) []StringPoin
 func newMeanIterator(input Iterator, opt IteratorOptions) Iterator {
 	switch input := input.(type) {
 	case FloatIterator:
-		return &floatReduceSliceIterator{input: newBufFloatIterator(input), opt: opt, fn: floatMeanReduceSlice}
-	case IntegerIterator:
-		return &integerReduceSliceFloatIterator{input: newBufIntegerIterator(input), opt: opt, fn: integerMeanReduceSlice}
+		return &floatReduceIterator{input: newBufFloatIterator(input), opt: opt, fn: floatMeanReduce}
+		//	case IntegerIterator:
+		//		return &integerReduceFloatIterator{input: newBufIntegerIterator(input), opt: opt, fn: integerMeanReduceSlice}
 	default:
 		panic(fmt.Sprintf("unsupported mean iterator type: %T", input))
 	}
 }
 
-// floatMeanReduceSlice returns the mean value within a window.
-func floatMeanReduceSlice(a []FloatPoint, opt *reduceOptions) []FloatPoint {
-	var mean float64
-	var count int
-	for _, p := range a {
-		if math.IsNaN(p.Value) {
-			continue
-		}
-		count++
-		mean += (p.Value - mean) / float64(count)
+// floatMeanReduce returns the mean value within a window.
+func floatMeanReduce(prev, curr *FloatPoint, opt *reduceOptions) (int64, float64, []interface{}) {
+	if prev == nil {
+		return opt.startTime, curr.Value, nil
 	}
-	return []FloatPoint{{Time: opt.startTime, Value: mean}}
+	value := ((prev.Value * float64(prev.Aggregated)) + curr.Value) / float64(prev.Aggregated+1)
+	return prev.Time, value, prev.Aux
 }
 
 // integerMeanReduceSlice returns the mean value within a window.
