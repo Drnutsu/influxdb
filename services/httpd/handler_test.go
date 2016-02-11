@@ -318,12 +318,21 @@ func TestHandler_Ping(t *testing.T) {
 	}
 }
 
-// Ensure the handler returns the version correctly.
+// Ensure the handler returns the version correctly from the different endpoints.
 func TestHandler_Version(t *testing.T) {
 	h := NewHandler(false)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, MustNewRequest("GET", "/ping", nil))
-	if w.HeaderMap["X-InfluxDB-Version"] != "0.0.0" {
+	if w.HeaderMap["X-Influxdb-Version"][0] != "0.0.0" {
+		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
+	}
+	h.ServeHTTP(w, MustNewJSONRequest("GET", "/query?db=foo&q=SELECT+*+FROM+bar", nil))
+	if w.HeaderMap["X-Influxdb-Version"][0] != "0.0.0" {
+		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
+	}
+	b := bytes.NewReader(make([]byte, 10))
+	h.ServeHTTP(w, MustNewRequest("POST", "/write", b))
+	if w.HeaderMap["X-Influxdb-Version"][0] != "0.0.0" {
 		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
 	}
 }
