@@ -318,6 +318,16 @@ func TestHandler_Ping(t *testing.T) {
 	}
 }
 
+// Ensure the handler returns the version correctly.
+func TestHandler_Version(t *testing.T) {
+	h := NewHandler(false)
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, MustNewRequest("GET", "/ping", nil))
+	if w.HeaderMap["X-InfluxDB-Version"] != "0.0.0" {
+		t.Fatalf("unexpected version: %d", w.HeaderMap["X-InfluxDB-Version"])
+	}
+}
+
 // Ensure the handler handles status requests correctly.
 func TestHandler_Status(t *testing.T) {
 	h := NewHandler(false)
